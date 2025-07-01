@@ -3,6 +3,10 @@
 Get notified with a sound when Claude Code finishes responding. Perfect for
 long-running tasks.
 
+Now that Claude Code has
+[hooks](https://docs.anthropic.com/en/docs/claude-code/hooks), I decided to make
+a simple script that will notify me when Claude Code finishes responding.
+
 ## Quick Start
 
 ````bash
