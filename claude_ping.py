@@ -5,11 +5,22 @@ import subprocess
 import os
 import requests
 from datetime import datetime
+from pathlib import Path
+
+# Load .env file if it exists
+env_file = Path(__file__).parent / '.env'
+if env_file.exists():
+    with open(env_file) as f:
+        for line in f:
+            if line.strip() and not line.startswith('#'):
+                key, value = line.strip().split('=', 1)
+                # Only set if not already in environment
+                if key not in os.environ:
+                    os.environ[key] = value
 
 def send_mac_notification(title, message, sound_file=None):
     """Send macOS notification with sound"""
-    sound_file = sound_file or "/Users/dayvough/Projects/ai/claude/cc-ping/notif.mp3"
-    # sound_file = sound_file or "/System/Library/Sounds/Glass.aiff"
+    sound_file = sound_file or str(Path(__file__).parent / "notif.mp3")
     
     script = f'''
     tell application "System Events"
@@ -49,8 +60,17 @@ def main():
         print(json.dumps({"decision": "approve"}))
         return
     
-    # Get config from environment or defaults
-    sound_file = os.getenv('CC_SOUND_FILE', '/Users/dayvough/Projects/ai/claude/cc-ping/notif.mp3')
+    # Determine paths to bundled sound files relative to this script
+    script_dir = Path(__file__).parent
+    default_sound = script_dir / "notif.mp3"
+    gilfoyle_sound = script_dir / "You Suffer (Napalm Death).mp3"
+    
+    # Check if Gilfoyle mode is enabled
+    if os.getenv('GILFOYLE_MODE', '').lower() in ('true'):
+        sound_file = os.getenv('CC_SOUND_FILE', str(gilfoyle_sound))
+    else:
+        sound_file = os.getenv('CC_SOUND_FILE', str(default_sound))
+    
     pushover_token = os.getenv('PUSHOVER_TOKEN')
     pushover_user = os.getenv('PUSHOVER_USER')
     
